@@ -11,7 +11,7 @@ cache:
 env:
   global:
     - NODE_VERSION=12.14.1
-    - YARN_VERSION=1.21.1
+    - YARN_VERSION=1.21.1-1
 before_install:
   - nvm install $NODE_VERSION
   - node -v
