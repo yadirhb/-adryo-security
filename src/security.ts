@@ -4,7 +4,7 @@ const HTTP_UNAUTHORIZED = 401;
 
 export const authenticate = ({ secretKey, validator }: IConfig) => (
   request: { headers: { authorization: string } },
-  response: { status: Function; json: Function },
+  response: any,
   next: Function
 ) => {
   const { authorization } = request.headers;
@@ -18,29 +18,23 @@ export const authenticate = ({ secretKey, validator }: IConfig) => (
             const { data } = decrypted;
             if (validator) {
               try {
-                const promise = validator(data);
-                if (!(promise instanceof Promise)) {
-                  throw new Error(
-                    '[InvalidAuthValidatorError] AuthValidator must return Promise.'
-                  );
-                }
-                promise
+                validator(data)
                   .then(() => next())
                   .catch(error => {
                     response.status(HTTP_UNAUTHORIZED).json({ error });
-                    console.error(error);
+                    if (__DEV__) console.error(error);
                   });
               } catch (error) {
                 response.status(500).json({ error });
-                console.error(error);
+                if (__DEV__) console.error(error);
                 return;
               }
             } else {
               return next();
             }
           } else {
-            console.error(err);
             response.status(HTTP_UNAUTHORIZED).json({ error: err });
+            if (__DEV__) console.error(err);
           }
         });
       } else {

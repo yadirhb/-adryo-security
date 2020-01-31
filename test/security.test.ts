@@ -1,7 +1,26 @@
 import { authenticate } from '../src/index';
 
-describe('blah', () => {
-  it('works', () => {
-    expect(authenticate({})).toEqual(undefined);
+describe('Authenticate', () => {
+  it('Creates function middleware', () => {
+    expect(typeof authenticate({ secretKey: 's3cret' })).toEqual('function');
+  });
+
+  it('Decomposes the token', async () => {
+    const token =
+      'Barear eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjoiZm9vYmFyIiwiaWF0IjoxNTgwNDQzMDY3fQ.M6XTpzZEZxU86MLZGusAYSPdcyb3gjL9FHowp9BKhx4';
+    const middleware = authenticate({
+      secretKey: 's3cr3t',
+      validator: decryptedToken =>
+        new Promise((resolve, reject) => {
+          decryptedToken ? resolve() : reject();
+          expect(decryptedToken).toBe('foobar');
+        }),
+    });
+
+    return middleware(
+      { headers: { authorization: token } },
+      { status: () => {}, json: () => {} },
+      () => {}
+    );
   });
 });
