@@ -28,19 +28,19 @@ export const authenticate = ({ secretKey, validator }: IConfig) => (
                   .then(() => next())
                   .catch(error => {
                     response.status(HTTP_UNAUTHORIZED).json({ error });
-                    console.error(error);
+                    if (__DEV__) console.error(error);
                   });
               } catch (error) {
                 response.status(500).json({ error });
-                console.error(error);
+                if (__DEV__) console.error(error);
                 return;
               }
             } else {
               return next();
             }
           } else {
-            console.error(err);
             response.status(HTTP_UNAUTHORIZED).json({ error: err });
+            if (__DEV__) console.error(err);
           }
         });
       } else {
