@@ -1,2 +1,2 @@
-import { authenticate } from './security';
-export { authenticate };
+import { authenticate, tokenize } from './security';
+export { authenticate, tokenize };

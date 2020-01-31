@@ -1,8 +1,19 @@
-import IConfig from './interfaces/IConfig';
+import ISecurityConfig from './interfaces/ISecurityConfig';
+import ITokenProvider from './interfaces/ITokenProvider';
 import jwt from 'jsonwebtoken';
 const HTTP_UNAUTHORIZED = 401;
 
-export const authenticate = ({ secretKey, validator }: IConfig) => (
+const handleError = (response: any, code: number, error: string | Object) => {
+  const resp = response.status(code);
+  if (typeof error === 'string') {
+    resp.end(error);
+  } else {
+    resp.json(error);
+  }
+  if (__DEV__) console.error(error);
+};
+
+export const authenticate = ({ secretKey, validator }: ISecurityConfig) => (
   request: { headers: { authorization: string } },
   response: any,
   next: Function
@@ -20,29 +31,58 @@ export const authenticate = ({ secretKey, validator }: IConfig) => (
               try {
                 validator(data)
                   .then(() => next())
-                  .catch(error => {
-                    response.status(HTTP_UNAUTHORIZED).json({ error });
-                    if (__DEV__) console.error(error);
-                  });
+                  .catch(error =>
+                    handleError(response, HTTP_UNAUTHORIZED, error)
+                  );
               } catch (error) {
-                response.status(500).json({ error });
-                if (__DEV__) console.error(error);
-                return;
+                return handleError(response, 500, error);
               }
             } else {
               return next();
             }
           } else {
-            response.status(HTTP_UNAUTHORIZED).json({ error: err });
-            if (__DEV__) console.error(err);
+            return handleError(response, HTTP_UNAUTHORIZED, err);
           }
         });
       } else {
-        response
-          .status(503)
-          .end('No security key provided to decrypt the token');
+        return handleError(
+          response,
+          503,
+          'No security key provided to decrypt the token'
+        );
       }
     }
   }
   response.status(HTTP_UNAUTHORIZED).end();
+};
+
+export const tokenize = ({
+  secretKey,
+  provider,
+  signatureOptions = {},
+}: ITokenProvider) => (request: any, response: any, next: Function) => {
+  if (secretKey && provider) {
+    try {
+      provider(request)
+        .then(data => {
+          jwt.sign(data, secretKey, signatureOptions, (error, jwt) => {
+            if (error) {
+              return handleError(response, 500, error);
+            }
+
+            request = { ...request, jwt };
+            next();
+          });
+        })
+        .catch(error => handleError(response, 500, error));
+    } catch (error) {
+      handleError(response, 500, error);
+    }
+  } else {
+    handleError(
+      response,
+      503,
+      'No data provider to generate token or not secretKey. Provide {secretKey, provider:() => Promise}'
+    );
+  }
 };
