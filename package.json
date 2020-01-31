@@ -28,6 +28,10 @@
   "name": "@adryo/security",
   "author": "Yadir Hernandez Batista",
   "module": "dist/security.esm.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yadirhb/-adryo-security.git"
+  },
   "devDependencies": {
     "@types/jest": "^25.1.1",
     "husky": "^4.2.1",
