@@ -1,3 +1,5 @@
+# @adryo/security [![Build Status](https://travis-ci.com/yadirhb/-adryo-security.svg?branch=develop)](https://travis-ci.com/yadirhb/-adryo-security)
+
 # TSDX Bootstrap
 
 This project was bootstrapped with [TSDX](https://github.com/jaredpalmer/tsdx).
