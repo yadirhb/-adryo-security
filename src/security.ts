@@ -4,7 +4,7 @@ const HTTP_UNAUTHORIZED = 401;
 
 export const authenticate = ({ secretKey, validator }: IConfig) => (
   request: { headers: { authorization: string } },
-  response: { status: Function; json: Function },
+  response: any,
   next: Function
 ) => {
   const { authorization } = request.headers;

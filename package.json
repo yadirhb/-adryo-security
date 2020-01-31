@@ -40,6 +40,7 @@
     "typescript": "^3.7.5"
   },
   "dependencies": {
-    "@types/jsonwebtoken": "^8.3.7"
+    "@types/jsonwebtoken": "^8.3.7",
+    "jsonwebtoken": "^8.5.1"
   }
 }
