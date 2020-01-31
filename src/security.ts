@@ -44,5 +44,5 @@ export const authenticate = ({ secretKey, validator }: IConfig) => (
       }
     }
   }
-  response.status(HTTP_UNAUTHORIZED);
+  response.status(HTTP_UNAUTHORIZED).end();
 };
