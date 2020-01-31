@@ -1,16 +1,14 @@
-import security from '../src/index';
+import { authenticate } from '../src/index';
 
 describe('Authenticate', () => {
   it('Creates function middleware', () => {
-    expect(typeof security.authenticate({ secretKey: 's3cret' })).toEqual(
-      'function'
-    );
+    expect(typeof authenticate({ secretKey: 's3cret' })).toEqual('function');
   });
 
   it('Decomposes the token', async () => {
     const token =
       'Barear eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjoiZm9vYmFyIiwiaWF0IjoxNTgwNDQzMDY3fQ.M6XTpzZEZxU86MLZGusAYSPdcyb3gjL9FHowp9BKhx4';
-    const middleware = security.authenticate({
+    const middleware = authenticate({
       secretKey: 's3cr3t',
       validator: decryptedToken =>
         new Promise((resolve, reject) => {
