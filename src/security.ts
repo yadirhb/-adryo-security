@@ -59,19 +59,20 @@ export const authenticate = ({ secretKey, validator }: ISecurityConfig) => (
 export const tokenize = ({
   secretKey,
   provider,
-  signatureOptions = {},
+  signatureOptions = { algorithm: 'RS256' },
 }: ITokenProvider) => (request: any, response: any, next: Function) => {
   if (secretKey && provider) {
     try {
       provider(request)
         .then(data => {
           jwt.sign(data, secretKey, signatureOptions, (error, jwt) => {
-            if (error) {
+            if (error && jwt) {
               return handleError(response, 500, error);
             }
 
             request = { ...request, jwt };
             next();
+            if (__DEV__) console.log('Token generated', jwt);
           });
         })
         .catch(error => handleError(response, 500, error));
