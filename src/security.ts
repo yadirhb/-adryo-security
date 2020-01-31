@@ -18,13 +18,7 @@ export const authenticate = ({ secretKey, validator }: IConfig) => (
             const { data } = decrypted;
             if (validator) {
               try {
-                const promise = validator(data);
-                if (!(promise instanceof Promise)) {
-                  throw new Error(
-                    '[InvalidAuthValidatorError] AuthValidator must return Promise.'
-                  );
-                }
-                promise
+                validator(data)
                   .then(() => next())
                   .catch(error => {
                     response.status(HTTP_UNAUTHORIZED).json({ error });
