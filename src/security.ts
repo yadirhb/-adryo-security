@@ -11,6 +11,7 @@ const handleError = (response: any, code: number, error: string | Object) => {
     resp.json(error);
   }
   if (__DEV__) console.error(error);
+  return { code, error };
 };
 
 export const authenticate = ({ secretKey, validator }: ISecurityConfig) => (
@@ -56,34 +57,46 @@ export const authenticate = ({ secretKey, validator }: ISecurityConfig) => (
   response.status(HTTP_UNAUTHORIZED).end();
 };
 
-export const tokenize = ({
-  secretKey,
-  provider,
-  signatureOptions = { algorithm: 'RS256' },
-}: ITokenProvider) => (request: any, response: any, next: Function) => {
-  if (secretKey && provider) {
-    try {
-      provider(request)
-        .then(data => {
-          jwt.sign(data, secretKey, signatureOptions, (error, jwt) => {
-            if (error && jwt) {
-              return handleError(response, 500, error);
-            }
+export const tokenize = ({ secretKey, provider }: ITokenProvider) => (
+  request: any,
+  response: any,
+  next: Function
+) =>
+  new Promise((resolve, reject) => {
+    if (secretKey && provider) {
+      try {
+        provider(request)
+          .then(data => {
+            jwt.sign(
+              data,
+              secretKey,
+              (error: string | Object, jwt: unknown) => {
+                if (error) {
+                  return reject(handleError(response, 500, error));
+                }
 
-            request = { ...request, jwt };
-            next();
-            if (__DEV__) console.log('Token generated', jwt);
-          });
-        })
-        .catch(error => handleError(response, 500, error));
-    } catch (error) {
-      handleError(response, 500, error);
+                if (jwt) {
+                  request['jwt'] = jwt;
+                  if (__DEV__) console.log('Token generated', jwt);
+                  next();
+                  return resolve(jwt);
+                }
+
+                return handleError(response, 503, 'Unable to generate token');
+              }
+            );
+          })
+          .catch(error => reject(handleError(response, 500, error)));
+      } catch (error) {
+        reject(handleError(response, 500, error));
+      }
+    } else {
+      reject(
+        handleError(
+          response,
+          503,
+          'No data provider to generate token or not secretKey. Provide {secretKey, provider:() => Promise}'
+        )
+      );
     }
-  } else {
-    handleError(
-      response,
-      503,
-      'No data provider to generate token or not secretKey. Provide {secretKey, provider:() => Promise}'
-    );
-  }
-};
+  });
