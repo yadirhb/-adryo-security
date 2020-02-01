@@ -84,7 +84,9 @@ export const tokenize = ({ secretKey, provider }: ITokenProvider) => (
               }
             );
           })
-          .catch(error => reject(handleError(response, 500, error)));
+          .catch(error =>
+            error ? reject(handleError(response, 500, error)) : next()
+          );
       } catch (error) {
         reject(handleError(response, 500, error));
       }
