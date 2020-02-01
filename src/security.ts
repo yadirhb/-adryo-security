@@ -25,9 +25,8 @@ export const authenticate = ({ secretKey, validator }: ISecurityConfig) => (
     if (type && token) {
       // verify a token symmetric
       if (secretKey) {
-        return jwt.verify(token, secretKey, (err: any, decrypted: any) => {
+        return jwt.verify(token, secretKey, (err: any, data: any) => {
           if (!err) {
-            const { data } = decrypted;
             if (validator) {
               try {
                 validator(data)
