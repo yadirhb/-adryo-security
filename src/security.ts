@@ -77,7 +77,6 @@ export const tokenize = ({ secretKey, provider }: ITokenProvider) => (
 
                 if (jwt) {
                   request['jwt'] = jwt;
-                  if (__DEV__) console.log('Token generated', jwt);
                   next();
                   return resolve(jwt);
                 }
