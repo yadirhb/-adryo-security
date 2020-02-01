@@ -54,7 +54,7 @@ export const authenticate = ({ secretKey, validator }: ISecurityConfig) => (
       }
     }
   }
-  response.status(HTTP_UNAUTHORIZED).end();
+  return handleError(response, HTTP_UNAUTHORIZED, 'No Authorization header');
 };
 
 export const tokenize = ({ secretKey, provider }: ITokenProvider) => (
